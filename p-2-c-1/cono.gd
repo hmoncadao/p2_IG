@@ -1,66 +1,77 @@
 extends Node3D
 
-@export var altura := 1.5
-@export var radio := 0.5
-@export var lados := 20
-@export var color := Color(1.0, 0.4, 0.1)
+@export var altura: float = 3
+@export var radio: float = 1.5
+@export var lados: int = 10
 
-var colores := [
-	Color(1, 0, 0), # rojo
-	Color(0, 1, 0), # verde
-	Color(0, 0, 1), # azul
-	Color(1, 1, 0), # amarillo
-	Color(1, 0, 1), # magenta
-	Color(0, 1, 1)  # cian
-]
+# Variables globales
+var cono = MeshInstance3D.new()
+var material = StandardMaterial3D.new()
+var mesh = ArrayMesh.new()
+var visualizador = load("res://visualizador.gd")
 
-var mesh_instance : MeshInstance3D
-var mesh : ArrayMesh
+var acciones := ["visualizador_A", "visualizador_B", "visualizador_C"]
 
-func _ready():
-	# Crear la malla del cono
-	mesh = ArrayMesh.new()
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+# Arrays para vertices, caras y colores
+var vertices = []
+var caras = []
+var colores = []
+var albedo = Color(0.9, 0.4, 0.1, 1.0)
 
-	var vertices: Array[Vector3] = []
-	for i in range(lados):
-		var ang = i * TAU / lados
-		vertices.append(Vector3(radio * cos(ang), 0, radio * sin(ang)))
-
-	var pico = Vector3(0, altura, 0)
-	var centro = Vector3(0, 0, 0)
-
-	for i in range(lados):
-		st.add_triangle_fan([vertices[i], vertices[(i + 1) % lados], pico])
-	for i in range(lados):
-		st.add_triangle_fan([centro, vertices[(i + 1) % lados], vertices[i]])
-
-	st.generate_normals()
-	st.commit(mesh)
-
-	mesh_instance = Visualizador.mostrar_malla(mesh, color, "pixel", self)
-	print("✅ Cono listo y visible.")
+func _ready() -> void:
+	var count = 0
+	var px 
+	var pz
+	
+	# Crear los vertices de la base
+	while count < lados:
+		px = radio * cos(count * 2 * PI / lados)
+		pz = -radio * sin(count * 2 * PI / lados)
+		vertices.append(Vector3(px, 0, pz))
+		count += 1
+		
+	# Vértice superior del cono
+	vertices.append(Vector3(0, altura, 0))
+	var indice_superior = vertices.size() - 1
+	
+	count = 0
+	# Caras laterales
+	while count < lados:
+		caras.append(Vector3i((count+1)%lados, count, indice_superior))
+		count += 1
+		
+	# Vertice central de la base
+	vertices.append(Vector3(0,0,0))
+	var indice_central_base = vertices.size() - 1
+	
+	count = 0
+	# Caras de la base
+	while count < lados:
+		caras.append(Vector3i(count, (count+1)%lados, indice_central_base))
+		count += 1
+	
+	# Colores aleatorios por cara
+	for j in range(caras.size()):
+		colores.append(Color(randf(), randf(), randf()))
+	
+	# Material
+	material.albedo_color = albedo
+	
+	# Crear la malla usando visualizador
+	cono.mesh = visualizador.malla_coloreada(vertices, caras, colores, material)
+	cono.material_override = material
+	
+	add_child(cono)
+	
+	var delta = 0
 
 func _process(delta):
-	if Input.is_action_just_pressed("mostrar_malla"):
-		mostrar_malla()
-
-func mostrar_malla():
-	if mesh_instance == null:
-		return
-
-	# Determinar el modo actual y cambiarlo
-	var nuevo_modo := "pixel"
-	if mesh_instance.material_override.shading_mode == BaseMaterial3D.SHADING_MODE_PER_PIXEL:
-		nuevo_modo = "vertex"
-		print("Modo cambiado → Per Vertex (Gouraud)")
-	else:
-		nuevo_modo = "pixel"
-		print("Modo cambiado → Per Pixel (Phong)")
-
-	# Eliminar el nodo anterior para reemplazarlo
-	mesh_instance.queue_free()
-
-	# Crear un nuevo MeshInstance3D usando Visualizador
-	mesh_instance = Visualizador.mostrar_malla(mesh, color, nuevo_modo, self)
+	if Input.is_action_just_pressed("visualizador_A"):
+		cono.mesh = visualizador.malla_coloreada(vertices, caras, colores, material)
+		cono.material_override = material
+	elif Input.is_action_just_pressed("visualizador_B"):
+		cono.mesh = visualizador.malla_iluminacion_plana(vertices, caras, albedo, material)
+		cono.material_override = material
+	elif Input.is_action_just_pressed("visualizador_C"):
+		cono.mesh = visualizador.malla_sombra_suave(vertices, caras, albedo, material)
+		cono.material_override = material

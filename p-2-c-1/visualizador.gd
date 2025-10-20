@@ -1,45 +1,60 @@
 extends Node3D
 
-# Mostrar un MeshInstance3D con diferentes modos de sombreado y opcionalmente colores por cara
-# modo: "phong"/"pixel", "gouraud"/"vertex", "flat"
-# random_colors: si es true, asigna colores distintos por cara
-func mostrar_malla(malla: ArrayMesh, color: Color, modo: String, padre: Node3D, random_colors: bool = false) -> MeshInstance3D:
-	var mat = StandardMaterial3D.new()
-	mat.albedo_color = color
+#Funcion para cerar una malla con colores distintos para cada cara pero sin iluminar
+static func malla_coloreada(vertices: Array, caras: Array, color: Array, material: StandardMaterial3D) -> ArrayMesh:
+	var st = SurfaceTool.new() #SurfaceTool para construir malla 
+	# Sin iluminacion
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.vertex_color_use_as_albedo = true
 	
-	match modo:
-		"phong", "pixel":
-			mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
-			mat.flags_use_flat_shading = false
-		"gouraud", "vertex":
-			mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
-			mat.flags_use_flat_shading = false
-		"flat":
-			mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
-			mat.flags_use_flat_shading = true
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
-	# Si se quieren colores distintos por cara
-	if random_colors:
-		var st := SurfaceTool.new()
-		st.begin(Mesh.PRIMITIVE_TRIANGLES)
-		
-		for s in range(malla.get_surface_count()):
-			var arrays = malla.surface_get_arrays(s)
-			var verts = arrays[Mesh.ARRAY_VERTEX]
-			var indices = arrays[Mesh.ARRAY_INDEX]
-			
-			for i in range(0, indices.size(), 3):
-				var c = Color(randf(), randf(), randf(), 1.0)
-				for j in range(3):
-					var vi = indices[i + j]
-					st.add_color(c)
-					st.add_vertex(verts[vi])
-		
-		malla = st.commit()
+	for i in range(caras.size()):
+		st.set_color(color[i])
+		st.add_vertex(vertices[caras[i][0]])
+		st.add_vertex(vertices[caras[i][1]])
+		st.add_vertex(vertices[caras[i][2]])
+
+
+	st.generate_normals()
+	return st.commit()  #Generamos la malla final y la devolvemos
+
+static func malla_iluminacion_plana(vertices: Array, caras: Array, color: Color, material: StandardMaterial3D) -> ArrayMesh:
+	var st = SurfaceTool.new()
 	
-	var inst = MeshInstance3D.new()
-	inst.mesh = malla
-	inst.material_override = mat
-	padre.add_child(inst)
+	# Material para iluminación plana
+	material = StandardMaterial3D.new()
+	material.albedo_color = color
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.vertex_color_use_as_albedo = false  # Usamos iluminación
+	material.cull_mode = BaseMaterial3D.CULL_BACK
 	
-	return inst
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in range(caras.size()):
+		st.add_vertex(vertices[caras[i][0]])
+		st.add_vertex(vertices[caras[i][1]])
+		st.add_vertex(vertices[caras[i][2]])
+	
+	st.generate_normals()
+	return st.commit()
+
+
+static func malla_sombra_suave(vertices: Array, caras: Array, color: Color, material: StandardMaterial3D) -> ArrayMesh:
+	var st = SurfaceTool.new()
+	
+	# Material con iluminación
+	material = StandardMaterial3D.new()
+	material.albedo_color = color
+	material.vertex_color_use_as_albedo = false
+	
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	
+	for cara in caras:
+		# Normal de la cara
+		var n = ((vertices[cara[1]] - vertices[cara[0]]).cross(vertices[cara[2]] - vertices[cara[0]])).normalized()
+		st.set_normal(n)
+		st.add_vertex(vertices[cara[0]])
+		st.add_vertex(vertices[cara[1]])
+		st.add_vertex(vertices[cara[2]])
+	
+	return st.commit()

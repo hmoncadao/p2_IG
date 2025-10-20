@@ -1,13 +1,12 @@
-[gd_scene load_steps=11 format=3 uid="uid://baktoykqeyrch"]
+[gd_scene load_steps=10 format=3 uid="uid://baktoykqeyrch"]
 
 [ext_resource type="Script" uid="uid://bebnm8txynd1q" path="res://node_3d.gd" id="1_a202f"]
-[ext_resource type="Script" uid="uid://cb6qrndo4vba" path="res://e_jes.gd" id="2_noarx"]
+[ext_resource type="Script" uid="uid://cb6qrndo4vba" path="res://ejes.gd" id="2_noarx"]
 [ext_resource type="Script" uid="uid://b6awvx2ctqpyr" path="res://pivote.gd" id="3_a0tk4"]
 [ext_resource type="PackedScene" uid="uid://vo6yhepal4cy" path="res://Cake Birthday.glb" id="4_r3fl7"]
 [ext_resource type="ArrayMesh" uid="uid://kfvtqkjvha27" path="res://model.obj" id="5_jka67"]
-[ext_resource type="Script" uid="uid://dv7qdpwsb0s1o" path="res://piram.gd" id="6_i5arm"]
+[ext_resource type="Script" uid="uid://dv7qdpwsb0s1o" path="res://piramide.gd" id="6_i5arm"]
 [ext_resource type="Script" uid="uid://ch3asoil5se5q" path="res://cono.gd" id="7_wc5p8"]
-[ext_resource type="Script" uid="uid://lvbyqf6i88jl" path="res://malla_jarron.gd" id="8_jsk3o"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_noarx"]
 
@@ -44,17 +43,11 @@ transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 3.0351787, 0)
 visible = false
 mesh = ExtResource("5_jka67")
 
-[node name="Piram" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11802769, 0)
+[node name="piramide" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.005505562, 0)
 visible = false
 script = ExtResource("6_i5arm")
 
 [node name="cono" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11802769, 0)
-visible = false
 script = ExtResource("7_wc5p8")
-
-[node name="jarron" type="Node3D" parent="."]
-
-[node name="malla_jarron" type="MeshInstance3D" parent="jarron"]
-script = ExtResource("8_jsk3o")
