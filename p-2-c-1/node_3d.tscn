@@ -1,0 +1,55 @@
+[gd_scene load_steps=10 format=3 uid="uid://baktoykqeyrch"]
+
+[ext_resource type="Script" uid="uid://bebnm8txynd1q" path="res://node_3d.gd" id="1_a202f"]
+[ext_resource type="Script" uid="uid://cb6qrndo4vba" path="res://e_jes.gd" id="2_noarx"]
+[ext_resource type="Script" uid="uid://b6awvx2ctqpyr" path="res://pivote.gd" id="3_a0tk4"]
+[ext_resource type="PackedScene" uid="uid://vo6yhepal4cy" path="res://Cake Birthday.glb" id="4_r3fl7"]
+[ext_resource type="ArrayMesh" uid="uid://kfvtqkjvha27" path="res://model.obj" id="5_jka67"]
+[ext_resource type="Script" uid="uid://dv7qdpwsb0s1o" path="res://piram.gd" id="6_i5arm"]
+[ext_resource type="Script" uid="uid://ch3asoil5se5q" path="res://cono.gd" id="7_wc5p8"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_noarx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a0tk4"]
+albedo_color = Color(0.8171299, 0.36168066, 1, 1)
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_a202f")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.94955146, 0.31361133, 0, -0.31361133, 0.94955146, 0, 1.3644956, 2.6086507)
+
+[node name="Ejes" type="Node3D" parent="."]
+script = ExtResource("2_noarx")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08551216, 0)
+visible = false
+mesh = SubResource("CylinderMesh_noarx")
+surface_material_override/0 = SubResource("StandardMaterial3D_a0tk4")
+
+[node name="Pivote" type="Node3D" parent="."]
+script = ExtResource("3_a0tk4")
+
+[node name="Camera3D" type="Camera3D" parent="Pivote"]
+transform = Transform3D(0.9999845, -0.0055675753, 0, 0.0055675753, 0.9999845, 0, 0, 0, 1, -0.063382864, 0.083753824, 2.0108736)
+
+[node name="Cake" parent="." instance=ExtResource("4_r3fl7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0607542, 0)
+visible = false
+
+[node name="IceCream" type="MeshInstance3D" parent="."]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 3.0351787, 0)
+visible = false
+mesh = ExtResource("5_jka67")
+
+[node name="Piram" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11802769, 0)
+script = ExtResource("6_i5arm")
+
+[node name="cono2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11802769, 0)
+visible = false
+script = ExtResource("7_wc5p8")
+altura = 1.5
+lados = 20
